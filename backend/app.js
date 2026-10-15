@@ -1,18 +1,20 @@
 const express=require("express");
+const path=require("path");
 const mongoose=require("mongoose");
 const cors=require("cors");
-// const allowedOrigins = require('../front-end/carpool/config/allowedOrigins.cjs'); 
+
 const allowedOrigins=[
   'http://localhost:5173',
-  'http://localhost:4000'
+  'http://127.0.0.1:5173',
+  'http://localhost:4000',
+  'http://127.0.0.1:4000',
+  undefined
 ];
 
 const User=require("../backend/models/user");
 
-
 const app=express();
-const PORT=4000;
-
+const PORT=process.env.PORT || 4000;
 
 mongoose.connect("mongodb://127.0.0.1:27017/user")
         .then(()=>console.log("Connected to MongoDB"))
@@ -30,11 +32,15 @@ const corsOptions={
   optionSuccessStatus:200,
 };
 
-
 app.use(cors(corsOptions));
 app.use(express.json());
 
-app.post("/Signup",async(req,res)=>{
+const buildPath = path.join(__dirname, "../front-end/carpool/dist");
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(buildPath));
+}
+
+app.post("/api/Signup",async(req,res)=>{
   const {user,pwd,email}=req.body;
   const Exsistuser=await User.findOne({user,email});
   if(Exsistuser){
@@ -49,7 +55,7 @@ app.post("/Signup",async(req,res)=>{
   return res.status(200).json({message:"User created"});
 });
 
-app.patch("/Signup", async (req, res) => {
+app.patch("/api/Signup", async (req, res) => {
   try {
     const {
       location,
@@ -79,5 +85,11 @@ app.patch("/Signup", async (req, res) => {
     return res.status(500).json({ message: "Error updating user", error: err.message });
   }
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.get(/^(?!\/api).+$/, (req, res) => {
+    res.sendFile(path.join(buildPath, "index.html"));
+  });
+}
 
 app.listen(PORT,()=>console.log(`server running on port ${PORT}`));

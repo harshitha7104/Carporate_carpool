@@ -31,7 +31,7 @@ const OfferRide = () => {
     };
 
     try {
-      const res = await axios.patch(`http://localhost:4000/Signup`, data);
+      const res = await axios.patch("/Signup", data);
 
       if (res.status === 200) {
         setFormSubmitted(true);

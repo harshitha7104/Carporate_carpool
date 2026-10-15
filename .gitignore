@@ -1,0 +1,17 @@
+# Root-level ignores
+node_modules/
+**/node_modules/
+.env
+.env.*
+*.log
+npm-debug.log*
+
+# Build outputs
+**/dist/
+**/build/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
